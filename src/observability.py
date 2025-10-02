@@ -44,7 +44,7 @@ class ObservabilityManager:
         }
         
         self.events.append(event)
-        self.logger.info(event_type, message=message, **event)
+        self.logger.info(event_type, **event)
         
         # Write to file
         self._write_to_file(event)
@@ -70,12 +70,7 @@ class ObservabilityManager:
         }
         
         self.attempts.append(attempt)
-        self.logger.info(
-            "attempt",
-            attempt_number=attempt_number,
-            level=level,
-            success=success
-        )
+        self.logger.info("attempt", **attempt)
         
         # Write to file
         self._write_to_file(attempt)

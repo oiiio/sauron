@@ -150,7 +150,8 @@ class GandalfInteractionAgent:
         Returns:
             Dict with 'response' and 'success' keys
         """
-        gandalf_response = self.gandalf_client.send_prompt(prompt, level)
+        # Use send_message (new method) which has correct API structure
+        gandalf_response = self.gandalf_client.send_message(prompt, level)
         
         return {
             "response": gandalf_response.answer,
