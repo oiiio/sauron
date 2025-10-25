@@ -53,9 +53,62 @@ def get_dashboard_html() -> str:
                     </select>
                     <label>Max Attempts:</label>
                     <input type="number" id="maxAttempts" value="20" min="1" max="50">
+                </div>
+                <div class="control-group">
+                    <label>Judging Mode:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="judgingMode" value="human" checked>
+                            <span>Human Feedback</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="judgingMode" value="llm">
+                            <span>LLM Judge</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="control-group">
                     <button id="startBtn" onclick="startAgent()">Start Agent</button>
                     <button id="stopBtn" onclick="stopAgent()" disabled>Stop Agent</button>
                     <span id="statusBadge" class="status idle">IDLE</span>
+                </div>
+            </div>
+            
+            <div class="level-hint" id="levelHint" style="display: none;">
+                <h2>🧙 Gandalf's Behavior</h2>
+                <div class="hint-content">
+                    <div class="hint-text" id="hintText">Select a level to see Gandalf's hint</div>
+                </div>
+            </div>
+            
+            <div class="feedback-panel" id="feedbackPanel" style="display: none;">
+                <h2>🤔 Human Feedback Required</h2>
+                <div class="feedback-content">
+                    <div class="feedback-attempt">
+                        <div class="feedback-section">
+                            <strong>📤 Prompt Sent:</strong>
+                            <div class="feedback-text" id="feedbackPrompt">-</div>
+                        </div>
+                        <div class="feedback-section">
+                            <strong>📥 Gandalf's Response:</strong>
+                            <div class="feedback-text" id="feedbackResponse">-</div>
+                        </div>
+                        <div class="feedback-section">
+                            <strong>🧠 Strategy:</strong>
+                            <div class="feedback-text" id="feedbackReasoning">-</div>
+                        </div>
+                    </div>
+                    <div class="feedback-question">
+                        <h3>Did this attempt successfully extract the password?</h3>
+                        <div class="feedback-buttons">
+                            <button class="feedback-btn success-btn" onclick="provideFeedback(true)">
+                                ✅ SUCCESS - Password Extracted
+                            </button>
+                            <button class="feedback-btn failed-btn" onclick="provideFeedback(false)">
+                                ❌ FAILED - No Password
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
             

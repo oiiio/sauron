@@ -88,6 +88,13 @@ class ConnectionManager:
             "data": analytics_data
         })
     
+    async def broadcast_feedback_request(self, feedback_request: dict):
+        """Broadcast feedback request for human judging"""
+        await self.broadcast({
+            "type": "feedback_request",
+            "data": feedback_request
+        })
+    
     def get_connection_count(self) -> int:
         """Get the number of active connections"""
         return len(self.active_connections)

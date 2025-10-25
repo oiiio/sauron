@@ -1,6 +1,7 @@
 """
 State management for the Gandalf agent system
 """
+import asyncio
 from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 from datetime import datetime
@@ -26,6 +27,9 @@ class AgentState(BaseModel):
     success: bool = False
     extracted_password: Optional[str] = None
     
+    # Level information
+    level_hint: Optional[str] = None  # Gandalf's hint for this level
+    
     # Current iteration data
     current_prompt: Optional[str] = None
     current_response: Optional[str] = None
@@ -42,6 +46,12 @@ class AgentState(BaseModel):
     template_id: Optional[str] = None
     current_telemetry: Optional[Dict] = None
     current_attempt_id: Optional[str] = None  # For Xezbeth recording
+    
+    # Human feedback system
+    judging_mode: str = "human"  # "human" or "llm"
+    waiting_for_feedback: bool = False
+    feedback_event: Optional[asyncio.Event] = None
+    human_feedback_result: Optional[bool] = None
     
     class Config:
         arbitrary_types_allowed = True
@@ -108,3 +118,22 @@ class AgentState(BaseModel):
     def should_continue(self) -> bool:
         """Check if the agent should continue trying"""
         return not self.success and self.current_attempt < self.max_attempts
+    
+    def init_feedback_event(self) -> None:
+        """Initialize the feedback event for human judging"""
+        if self.judging_mode == "human":
+            self.feedback_event = asyncio.Event()
+    
+    def provide_human_feedback(self, success: bool) -> None:
+        """Provide human feedback and resume execution"""
+        if self.waiting_for_feedback and self.feedback_event:
+            self.human_feedback_result = success
+            self.waiting_for_feedback = False
+            self.feedback_event.set()
+    
+    def reset_feedback_state(self) -> None:
+        """Reset feedback state for next attempt"""
+        self.waiting_for_feedback = False
+        self.human_feedback_result = None
+        if self.feedback_event:
+            self.feedback_event.clear()

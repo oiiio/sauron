@@ -12,12 +12,17 @@ from ..observability import ObservabilityManager
 from ..session_manager import SessionManager
 from ..mode_selector import ModeSelector
 from ..telemetry_analyzer import TelemetryAnalyzer
+from ..feedback_system import feedback_system
 
 
 # Global state
 current_graph: Optional[EnhancedGandalfGraph] = None
+current_state: Optional[object] = None  # Store reference to current AgentState
 observability: Optional[ObservabilityManager] = None
 session_manager: Optional[SessionManager] = None
+
+# Global feedback system
+feedback_queue = {}  # session_id -> feedback_result
 
 # Create router
 router = APIRouter()
@@ -32,6 +37,7 @@ async def start_agent(config: Dict):
     max_attempts = config.get("max_attempts", 20)
     provider = config.get("provider")
     model = config.get("model")
+    judging_mode = config.get("judging_mode", "human")
     
     # Initialize session manager if not already done
     if not session_manager:
@@ -45,7 +51,8 @@ async def start_agent(config: Dict):
         level=level,
         max_attempts=max_attempts,
         provider=provider,
-        model=model
+        model=model,
+        judging_mode=judging_mode
     )
     
     # Get mode status
@@ -92,6 +99,36 @@ async def stop_agent():
     })
     
     return {"status": "stopped"}
+
+
+@router.post("/api/feedback")
+async def provide_feedback(feedback: Dict):
+    """Provide human feedback for attempt success"""
+    global current_graph
+    
+    if not current_graph:
+        raise HTTPException(status_code=400, detail="No active agent session")
+    
+    success = feedback.get("success", False)
+    session_id = feedback.get("session_id", "current")  # Use session_id if provided
+    
+    # Store feedback in global feedback system
+    feedback_system.store_feedback(session_id, success)
+    
+    # Broadcast feedback received
+    await manager.broadcast({
+        "type": "human_feedback",
+        "data": {
+            "success": success,
+            "timestamp": datetime.now().isoformat()
+        }
+    })
+    
+    return {
+        "status": "feedback_received",
+        "success": success,
+        "message": f"Feedback provided: {'SUCCESS' if success else 'FAILED'}"
+    }
 
 
 @router.get("/api/attempts")
