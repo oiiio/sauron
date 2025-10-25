@@ -74,6 +74,20 @@ class ConnectionManager:
             "data": stats
         })
     
+    async def broadcast_session_info(self, session_info: dict):
+        """Broadcast session information"""
+        await self.broadcast({
+            "type": "session_info",
+            "data": session_info
+        })
+    
+    async def broadcast_analytics(self, analytics_data: dict):
+        """Broadcast analytics data"""
+        await self.broadcast({
+            "type": "analytics",
+            "data": analytics_data
+        })
+    
     def get_connection_count(self) -> int:
         """Get the number of active connections"""
         return len(self.active_connections)

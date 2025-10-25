@@ -9,6 +9,9 @@ from .state import AgentState
 from .agents import ReasoningAgent, GandalfInteractionAgent
 from .gandalf_client import GandalfClient
 from .observability import ObservabilityManager
+from .mode_selector import ModeManager
+from .session_manager import SessionManager
+from .xezbeth_client import XezbethClient
 
 
 class GandalfGraph:

@@ -13,7 +13,29 @@ def get_dashboard_html() -> str:
     </head>
     <body>
         <div class="container">
+            <div class="session-id-display" id="sessionIdDisplay" style="display: none;">
+                <small>Session ID: <span id="topSessionId">-</span></small>
+            </div>
+            
             <h1>🧙 Sauron - Gandalf Agent Monitor 👁️</h1>
+            
+            <div class="session-info" id="sessionInfo" style="display: none;">
+                <h2>Session Information</h2>
+                <div class="session-details">
+                    <div class="session-item">
+                        <span class="session-label">Sauron Session ID:</span>
+                        <span class="session-value" id="sauronSessionId">-</span>
+                    </div>
+                    <div class="session-item">
+                        <span class="session-label">Xezbeth Session ID:</span>
+                        <span class="session-value" id="xezbethSessionId">-</span>
+                    </div>
+                    <div class="session-item">
+                        <span class="session-label">Mode:</span>
+                        <span class="session-value" id="sessionMode">-</span>
+                    </div>
+                </div>
+            </div>
             
             <div class="controls">
                 <h2>Controls</h2>
@@ -57,6 +79,10 @@ def get_dashboard_html() -> str:
                             <div class="stat-value" id="currentLevel">-</div>
                             <div class="stat-label">Current Level</div>
                         </div>
+                        <div class="stat-card" id="passwordCard" style="display: none;">
+                            <div class="stat-value" id="extractedPassword">-</div>
+                            <div class="stat-label">🎉 Extracted Password</div>
+                        </div>
                     </div>
                 </div>
                 
@@ -68,6 +94,77 @@ def get_dashboard_html() -> str:
                 <div class="panel full-width">
                     <h2>Event Log</h2>
                     <div class="event-log" id="eventLog"></div>
+                </div>
+                
+                <div class="panel full-width">
+                    <h2>📊 Telemetry Analytics</h2>
+                    <div class="analytics-tabs">
+                        <button class="tab-btn active" onclick="showAnalyticsTab('summary')">Summary</button>
+                        <button class="tab-btn" onclick="showAnalyticsTab('families')">Attack Families</button>
+                        <button class="tab-btn" onclick="showAnalyticsTab('templates')">Templates</button>
+                        <button class="tab-btn" onclick="showAnalyticsTab('levels')">Level Analysis</button>
+                        <button class="tab-btn" onclick="showAnalyticsTab('patterns')">Patterns</button>
+                        <button class="tab-btn" onclick="showAnalyticsTab('export')">Export</button>
+                    </div>
+                    
+                    <div class="analytics-content">
+                        <div id="summary-tab" class="analytics-tab active">
+                            <div class="analytics-summary" id="analyticsSummary">
+                                <div class="loading">Loading analytics summary...</div>
+                            </div>
+                        </div>
+                        
+                        <div id="families-tab" class="analytics-tab">
+                            <div class="analytics-filters">
+                                <label>Days Back: <input type="number" id="familyDaysFilter" placeholder="All time" min="1"></label>
+                                <label>Level: <select id="familyLevelFilter"><option value="">All levels</option></select></label>
+                                <button onclick="loadAttackFamilies()">Refresh</button>
+                            </div>
+                            <div id="attackFamiliesContainer" class="analytics-container">
+                                <div class="loading">Click Refresh to load attack family statistics...</div>
+                            </div>
+                        </div>
+                        
+                        <div id="templates-tab" class="analytics-tab">
+                            <div class="analytics-filters">
+                                <label>Family: <select id="templateFamilyFilter"><option value="">All families</option></select></label>
+                                <label>Level: <select id="templateLevelFilter"><option value="">All levels</option></select></label>
+                                <button onclick="loadTemplates()">Refresh</button>
+                            </div>
+                            <div id="templatesContainer" class="analytics-container">
+                                <div class="loading">Click Refresh to load template effectiveness...</div>
+                            </div>
+                        </div>
+                        
+                        <div id="levels-tab" class="analytics-tab">
+                            <div id="levelsContainer" class="analytics-container">
+                                <div class="loading">Loading level analysis...</div>
+                            </div>
+                        </div>
+                        
+                        <div id="patterns-tab" class="analytics-tab">
+                            <div id="patternsContainer" class="analytics-container">
+                                <div class="loading">Loading session patterns...</div>
+                            </div>
+                        </div>
+                        
+                        <div id="export-tab" class="analytics-tab">
+                            <div class="export-controls">
+                                <h3>Export Telemetry Data</h3>
+                                <div class="export-filters">
+                                    <label>Format: 
+                                        <select id="exportFormat">
+                                            <option value="json">JSON</option>
+                                        </select>
+                                    </label>
+                                    <label>Level: <select id="exportLevelFilter"><option value="">All levels</option></select></label>
+                                    <label>Days Back: <input type="number" id="exportDaysFilter" placeholder="All time" min="1"></label>
+                                    <button onclick="exportTelemetryData()">Export Data</button>
+                                </div>
+                                <div id="exportResult" class="export-result"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

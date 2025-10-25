@@ -34,6 +34,15 @@ class AgentState(BaseModel):
     # Strategy tracking
     strategies_tried: List[str] = Field(default_factory=list)
     
+    # New fields for Xezbeth integration
+    mode: str = "xezbeth"  # or "standalone"
+    sauron_session_id: Optional[str] = None  # Our internal session ID
+    xezbeth_session_id: Optional[str] = None  # Xezbeth session ID
+    attack_family: Optional[str] = None
+    template_id: Optional[str] = None
+    current_telemetry: Optional[Dict] = None
+    current_attempt_id: Optional[str] = None  # For Xezbeth recording
+    
     class Config:
         arbitrary_types_allowed = True
     

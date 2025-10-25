@@ -32,9 +32,13 @@ if __name__ == "__main__":
     import uvicorn
     from src.web_server import app
     
+    # Get host and port from environment
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8001"))
+    
     print("🧙 Starting Sauron - Gandalf Agent Monitor 👁️")
     print("=" * 60)
-    print("Dashboard will be available at: http://localhost:8000")
+    print(f"Dashboard will be available at: http://localhost:{port}")
     print("=" * 60)
     
-    uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
+    uvicorn.run(app, host=host, port=port, log_level="info")

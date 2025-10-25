@@ -3,6 +3,7 @@ Gandalf API Client
 Handles communication with Lakera's Gandalf game API and web interface
 """
 import httpx
+import time
 from typing import Optional, Dict, Any
 from pydantic import BaseModel
 from bs4 import BeautifulSoup
@@ -140,6 +141,9 @@ class GandalfClient:
         }
         
         try:
+            # Wait 3 seconds before sending to prevent timeout issues
+            time.sleep(3)
+            
             # Use data parameter for form data, not json parameter
             response = self.client.post(
                 endpoint, 
