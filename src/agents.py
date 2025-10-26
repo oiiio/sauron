@@ -221,9 +221,22 @@ PROMPT: [The actual prompt to send]""")
                 result["reasoning"] = line.replace("REASONING:", "").strip()
             elif line.startswith("PROMPT:"):
                 current_section = "prompt"
-                result["prompt"] = line.replace("PROMPT:", "").strip()
+                prompt_text = line.replace("PROMPT:", "").strip()
+                # Remove surrounding quotes if present
+                if prompt_text.startswith('"') and prompt_text.endswith('"'):
+                    prompt_text = prompt_text[1:-1]
+                elif prompt_text.startswith("'") and prompt_text.endswith("'"):
+                    prompt_text = prompt_text[1:-1]
+                result["prompt"] = prompt_text
             elif current_section and line:
-                result[current_section] += " " + line
+                if current_section == "prompt":
+                    # For prompt continuation, also handle quotes
+                    line_text = line
+                    if result["prompt"] == "" and line_text.startswith('"') and line_text.endswith('"'):
+                        line_text = line_text[1:-1]
+                    result[current_section] += " " + line_text
+                else:
+                    result[current_section] += " " + line
         
         return result
 
@@ -234,15 +247,20 @@ class GandalfInteractionAgent:
     def __init__(self, gandalf_client):
         self.gandalf_client = gandalf_client
     
-    def send_prompt(self, prompt: str, level: int) -> Dict[str, Any]:
+    def send_prompt(self, prompt: str, level: int, skip_delay: bool = False) -> Dict[str, Any]:
         """
         Send a prompt to Gandalf and return the response
+        
+        Args:
+            prompt: The prompt to send
+            level: Gandalf level
+            skip_delay: Skip the 3-second delay (useful for human feedback mode)
         
         Returns:
             Dict with 'response' and 'success' keys
         """
         # Use send_message (new method) which has correct API structure
-        gandalf_response = self.gandalf_client.send_message(prompt, level)
+        gandalf_response = self.gandalf_client.send_message(prompt, level, skip_delay=skip_delay)
         
         return {
             "response": gandalf_response.answer,

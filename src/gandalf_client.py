@@ -42,7 +42,7 @@ class GandalfClient:
     LEVEL_CONFIG = {
         1: {"name": "baseline", "path": "/baseline"},
         2: {"name": "do-not-tell", "path": "/do-not-tell"},
-        3: {"name": "do-not-tell-password", "path": "/do-not-tell-password"},
+        3: {"name": "do-not-tell-and-block", "path": "/do-not-tell-password"},
         4: {"name": "gpt-is-password-encoded", "path": "/gpt-is-password-encoded"},
         5: {"name": "word-blacklist", "path": "/word-blacklist"},
         6: {"name": "gpt-blacklist", "path": "/gpt-blacklist"},
@@ -130,7 +130,8 @@ class GandalfClient:
     def send_message(
         self, 
         message: str, 
-        level: int = 1
+        level: int = 1,
+        skip_delay: bool = False
     ) -> GandalfResponse:
         """
         Send a message to Gandalf via the API
@@ -138,6 +139,7 @@ class GandalfClient:
         Args:
             message: The message to send to Gandalf
             level: The difficulty level (1-8)
+            skip_delay: Skip the 3-second delay (useful for human feedback mode)
             
         Returns:
             GandalfResponse with Gandalf's answer and success status
@@ -159,8 +161,9 @@ class GandalfClient:
         }
         
         try:
-            # Wait 3 seconds before sending to prevent timeout issues
-            time.sleep(3)
+            # Wait 3 seconds before sending to prevent timeout issues (unless skipped)
+            if not skip_delay:
+                time.sleep(3)
             
             # Use data parameter for form data, not json parameter
             response = self.client.post(

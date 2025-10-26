@@ -112,8 +112,11 @@ async def provide_feedback(feedback: Dict):
     success = feedback.get("success", False)
     session_id = feedback.get("session_id", "current")  # Use session_id if provided
     
-    # Store feedback in global feedback system
+    # Store feedback in global feedback system using both keys to ensure compatibility
     feedback_system.store_feedback(session_id, success)
+    # Also store with "current" key as fallback for compatibility
+    if session_id != "current":
+        feedback_system.store_feedback("current", success)
     
     # Broadcast feedback received
     await manager.broadcast({
@@ -460,11 +463,21 @@ async def run_agent_task():
         # Run the graph (this is async now)
         final_state = await current_graph.run()
         
-        # Broadcast completion
-        status = "SUCCESS" if final_state.success else "FAILED"
+        # Broadcast completion status first
+        completion_status = "SUCCESS" if final_state.success else "FAILED"
         await manager.broadcast({
             "type": "status",
-            "status": status
+            "status": completion_status
+        })
+        
+        # Clean up and set to idle
+        await current_graph.cleanup()
+        current_graph = None
+        
+        # Broadcast idle status after cleanup
+        await manager.broadcast({
+            "type": "status",
+            "status": "IDLE"
         })
         
         # Note: Don't broadcast final stats here as they are already being broadcast
@@ -484,3 +497,8 @@ async def run_agent_task():
             "type": "status",
             "status": "ERROR"
         })
+        
+        # Clean up on error too
+        if current_graph:
+            await current_graph.cleanup()
+            current_graph = None

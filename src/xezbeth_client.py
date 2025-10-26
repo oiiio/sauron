@@ -32,7 +32,8 @@ class XezbethClient:
         self,
         objective: str,
         level: int,
-        max_attempts: int
+        max_attempts: int,
+        level_hint: Optional[str] = None
     ) -> str:
         """Create Xezbeth session, returns session_id"""
         # Map Gandalf level to target descriptor - using the correct format
@@ -48,6 +49,14 @@ class XezbethClient:
             "target_descriptor": target_descriptor,
             "max_attempts": max_attempts
         }
+        
+        # Add level hint as metadata if provided
+        if level_hint:
+            payload["metadata"] = {
+                "gandalf_level": level,
+                "level_hint": level_hint,
+                "target_info": f"Gandalf Level {level}: {level_hint}"
+            }
         
         try:
             response = await self.session.post(
@@ -156,14 +165,15 @@ class XezbethClient:
     
     def extract_attempt_id(self, step_response: Dict) -> str:
         """Extract attempt ID from step response for recording"""
-        # Xezbeth should provide an attempt_id in the step response
-        # If not provided, generate one based on session and timestamp
+        # Updated: Xezbeth API should provide attempt_id in the step response
+        # Use the provided attempt_id if available
         if "attempt_id" in step_response:
             return step_response["attempt_id"]
         else:
-            # Fallback: create attempt ID
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-            return f"attempt_{timestamp}"
+            # Fallback: Generate a proper UUID format that Xezbeth expects
+            # This handles cases where the API hasn't been updated yet
+            import uuid
+            return str(uuid.uuid4())
     
     async def close(self):
         """Close HTTP client"""
