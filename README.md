@@ -1,3 +1,6 @@
+
+(Intellectual disclaimer: there are much easier and more efficient ways to use a single LLM to play gandalf easily all the way through... including creatively pitting Gandalf against himself as performed by Microsoft. This is mostly an educational exercise in agentic development and testing the decision-making for the next prompt to try in jailbreak attacks, which is performed by Xezbeth's bandit algorithm (the Sauron network connects to our other agentic network Xezbeth for some of its strategy)) 
+
 # Sauron 👁️
 
 Sauron is an agentic system built with LangChain and LangGraph designed to play against Gandalf in Lakera's LLM security game. The system uses multiple AI agents to reason about and execute prompt injection strategies to extract passwords from Gandalf across 8 difficulty levels.
